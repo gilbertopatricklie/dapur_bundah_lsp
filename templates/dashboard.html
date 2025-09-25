@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Dashboard - {{ session.get('admin_username') }}</div>
+    <div class="top-actions">
+      <a href="{{ url_for('index') }}" class="login-btn">Lihat Situs</a>
+      <a href="{{ url_for('logout') }}" class="login-btn">Logout</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="content">
+      <h2>Produk (Edit Stok)</h2>
+      <table class="admin-table">
+        <thead><tr><th>Produk</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
+        <tbody>
+          {% for p in produk %}
+          <tr>
+            <td>{{ p.nama_produk }}</td>
+            <td>{{ p.nama_kategori }}</td>
+            <td>Rp {{ "{:,.0f}".format(p.harga) }}</td>
+            <td>{{ p.stok }}</td>
+            <td>
+              <form method="post" action="{{ url_for('update_stock') }}">
+                <input type="hidden" name="produk_id" value="{{ p.produk_id }}">
+                <input type="number" name="stok" value="{{ p.stok }}" min="0">
+                <button type="submit">Update</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h2>Laporan Ringkas</h2>
+      <p>Jumlah Transaksi: {{ laporan.jumlah_transaksi }}</p>
+      <p>Total Pendapatan: Rp {{ "{:,.0f}".format(laporan.total_pendapatan) }}</p>
+    </section>
+  </main>
+</body>
+</html>

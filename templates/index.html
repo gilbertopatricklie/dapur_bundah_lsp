@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dapur Bunda Bahagia</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Dapur Bunda Bahagia</div>
+    <div class="top-actions">
+      <a href="{{ url_for('cart') }}" class="cart-btn">Keranjang (<span id="cart-count">{{ cart_count }}</span>)</a>
+      {% if session.get('admin_logged_in') %}
+        <a href="{{ url_for('dashboard') }}" class="login-btn">Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="login-btn">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="container">
+    <aside class="sidebar">
+      <h3>Kategori</h3>
+      <ul>
+        {% for k in kategori %}
+          <li><button class="kategori-btn" data-kategori="{{ k.kategori_id }}">{{ k.nama_kategori }}</button></li>
+        {% endfor %}
+      </ul>
+    </aside>
+
+    <section class="content">
+      <h2>Menu</h2>
+      <div class="produk-grid">
+        {% for p in produk %}
+        <div class="card" data-kategori="{{ p.kategori_id }}">
+          <h4>{{ p.nama_produk }}</h4>
+          <p>Kategori: {{ p.nama_kategori }}</p>
+          <p>Harga: Rp {{ "{:,.0f}".format(p.harga) }}</p>
+          <p>Stok: {{ p.stok }}</p>
+          <button class="order-btn" data-id="{{ p.produk_id }}" data-nama="{{ p.nama_produk }}" data-harga="{{ p.harga }}" data-stok="{{ p.stok }}">Pesan</button>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+
+  <!-- modal popup order -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span id="close">&times;</span>
+      <h3 id="modal-nama"></h3>
+      <p>Harga: Rp <span id="modal-harga"></span></p>
+      <p>Stok: <span id="modal-stok"></span></p>
+      <form id="form-order">
+        <input type="hidden" name="produk_id" id="produk_id">
+        <input type="hidden" name="nama" id="produk_nama">
+        <input type="hidden" name="harga" id="produk_harga">
+        <label>Jumlah:</label>
+        <input type="number" name="qty" id="qty" min="1" value="1" />
+        <button type="submit">Masukkan ke Keranjang</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
