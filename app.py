@@ -4,12 +4,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = "ganti_dengan_secret_key_yang_kuat"
+app.secret_key = "GILBERTGANTENG"
 
-# CONFIG DATABASE - sesuaikan dengan config XAMPP Anda
 db_config = {
     'user': 'root',
-    'password': '',    # biasanya kosong di XAMPP
+    'password': '',    
     'host': '127.0.0.1',
     'database': 'restorandb',
     'auth_plugin': 'mysql_native_password'
@@ -19,7 +18,7 @@ def get_db():
     conn = mysql.connector.connect(**db_config)
     return conn
 
-# ROUTE: halaman utama
+
 @app.route('/')
 def index():
     conn = get_db()
@@ -27,17 +26,17 @@ def index():
     cur.execute("SELECT * FROM kategori_produk")
     kategori = cur.fetchall()
 
-    # ambil produk grouped by kategori
+    #buat ambil data per kategori
     cur.execute("SELECT p.*, k.nama_kategori FROM produk p JOIN kategori_produk k ON p.kategori_id=k.kategori_id ORDER BY k.kategori_id")
     produk = cur.fetchall()
 
     conn.close()
-    # cart stored in session
+    
     cart = session.get('cart', {})
     cart_count = sum(item['qty'] for item in cart.values()) if cart else 0
     return render_template('index.html', kategori=kategori, produk=produk, cart_count=cart_count)
 
-# ROUTE: tambah item ke cart (AJAX/POST)
+
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     produk_id = request.form.get('produk_id')
@@ -55,14 +54,14 @@ def add_to_cart():
     session['cart'] = cart
     return jsonify({'status': 'ok', 'cart_count': sum(item['qty'] for item in cart.values())})
 
-# ROUTE: lihat cart / billing page
+
 @app.route('/cart')
 def cart():
     cart = session.get('cart', {})
     total = sum(item['harga'] * item['qty'] for item in cart.values())
     return render_template('billing.html', cart=cart, total=total)
 
-# ROUTE: checkout & simpan pesanan + transaksi
+
 @app.route('/checkout', methods=['POST'])
 def checkout():
     nama_pelanggan = request.form.get('nama_pelanggan') or "Guest"
@@ -76,18 +75,18 @@ def checkout():
 
     conn = get_db()
     cur = conn.cursor()
-    # insert pelanggan
+    # input pelanggan
     cur.execute("INSERT INTO pelanggan (nama_pelanggan,no_telp,alamat) VALUES (%s,%s,%s)",
                 (nama_pelanggan, no_telp, alamat))
     pelanggan_id = cur.lastrowid
 
-    # insert pesanan
+    # input pesanan
     cur.execute("INSERT INTO pesanan (pelanggan_id, status) VALUES (%s, %s)",
                 (pelanggan_id, 'Selesai'))
     pesanan_id = cur.lastrowid
 
     total = 0.0
-    # insert detail pesanan & update stok
+    # input detail pesanan & update stok
     for pid, item in cart.items():
         subtotal = item['harga'] * item['qty']
         total += subtotal
@@ -96,19 +95,19 @@ def checkout():
         # kurangi stok
         cur.execute("UPDATE produk SET stok = stok - %s WHERE produk_id = %s", (item['qty'], int(pid)))
 
-    # insert transaksi
+    # input transaksi
     cur.execute("INSERT INTO transaksi (pesanan_id, metode_pembayaran, total) VALUES (%s,%s,%s)",
                 (pesanan_id, metode, total))
 
     conn.commit()
     conn.close()
 
-    # clear cart
+    # kosongin cart
     session['cart'] = {}
     flash("Pembayaran berhasil. Terima kasih!", "success")
     return redirect(url_for('index'))
 
-# ROUTE: halaman login
+# route login
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
@@ -128,10 +127,10 @@ def login():
             flash("Login gagal. Cek username/password.", "danger")
     return render_template('login.html')
 
-# ROUTE: inisialisasi admin (buat 1 admin) -- gunakan sekali, lalu hapus/disable
+# buat bikin admin
 @app.route('/init-admin')
 def init_admin():
-    # hanya jika belum ada admin
+    
     conn = get_db()
     cur = conn.cursor()
     cur.execute("SELECT COUNT(*) FROM admin")
@@ -141,11 +140,11 @@ def init_admin():
         cur.execute("INSERT INTO admin (username,password) VALUES (%s,%s)", ("admin", pw))
         conn.commit()
         conn.close()
-        return "Admin dibuat: username=admin password=admin123 (ganti segera)"
+        return "Admin dibuat: username=admin password=admin123"
     conn.close()
     return "Admin sudah ada."
 
-# ROUTE: dashboard admin
+# route dashboard
 @app.route('/dashboard', methods=['GET','POST'])
 def dashboard():
     if not session.get('admin_logged_in'):
@@ -155,13 +154,13 @@ def dashboard():
     # produk
     cur.execute("SELECT p.*, k.nama_kategori FROM produk p JOIN kategori_produk k ON p.kategori_id=k.kategori_id")
     produk = cur.fetchall()
-    # ringkasan laporan penjualan (sederhana): total pendapatan dan jumlah transaksi
+    # ringkasan laporan penjualan
     cur.execute("SELECT COUNT(*) as jumlah_transaksi, IFNULL(SUM(total),0) as total_pendapatan FROM transaksi")
     laporan_ringkas = cur.fetchone()
     conn.close()
     return render_template('dashboard.html', produk=produk, laporan=laporan_ringkas)
 
-# ROUTE: update stok (admin)
+# route update stok buat admin
 @app.route('/update_stock', methods=['POST'])
 def update_stock():
     if not session.get('admin_logged_in'):
@@ -175,7 +174,7 @@ def update_stock():
     conn.close()
     return redirect(url_for('dashboard'))
 
-# ROUTE: logout
+# route logout
 @app.route('/logout')
 def logout():
     session.clear()
