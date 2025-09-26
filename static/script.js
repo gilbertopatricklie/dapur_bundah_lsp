@@ -1,4 +1,5 @@
-document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded', function () {
+  // === popup modal elemen ===
   const modal = document.getElementById('modal');
   const close = document.getElementById('close');
   const modalNama = document.getElementById('modal-nama');
@@ -11,49 +12,52 @@ document.addEventListener('DOMContentLoaded', function(){
   const formOrder = document.getElementById('form-order');
   const cartCountSpan = document.getElementById('cart-count');
 
-  document.querySelectorAll('.order-btn').forEach(btn=>{
-    btn.addEventListener('click', function(){
-      const id = this.dataset.id;
-      const nama = this.dataset.nama;
-      const harga = this.dataset.harga;
-      const stok = this.dataset.stok;
-      modalNama.textContent = nama;
-      modalHarga.textContent = parseFloat(harga).toLocaleString('id-ID');
-      modalStok.textContent = stok;
-      produk_id.value = id;
-      produk_nama.value = nama;
-      produk_harga.value = harga;
+  // === klik tombol pesan ===
+  document.querySelectorAll('.order-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      modal.style.display = 'flex'; // buka modal
+      modalNama.textContent = this.dataset.nama;
+      modalHarga.textContent = parseFloat(this.dataset.harga).toLocaleString('id-ID');
+      modalStok.textContent = this.dataset.stok;
+      produk_id.value = this.dataset.id;
+      produk_nama.value = this.dataset.nama;
+      produk_harga.value = this.dataset.harga;
       qtyInput.value = 1;
-      modal.style.display = 'flex';
     });
   });
 
-  close.addEventListener('click', ()=> modal.style.display = 'none');
-  window.addEventListener('click', (e)=> { if(e.target == modal) modal.style.display='none'; });
+  // === tutup modal ===
+  close.addEventListener('click', () => modal.style.display = 'none');
+  window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
 
-  formOrder.addEventListener('submit', function(e){
+  // === submit form pesan ===
+  formOrder.addEventListener('submit', function (e) {
     e.preventDefault();
     const data = new FormData(formOrder);
     fetch('/add_to_cart', { method: 'POST', body: data })
       .then(res => res.json())
       .then(js => {
-        if(js.status === 'ok'){
+        if (js.status === 'ok') {
           cartCountSpan.textContent = js.cart_count;
           modal.style.display = 'none';
-          alert('Berhasil ditambahkan ke keranjang');
+          alert('✅ Berhasil ditambahkan ke keranjang');
         } else {
-          alert('Gagal menambahkan');
+          alert('❌ Gagal menambahkan');
         }
       })
-      .catch(err=> alert('Terjadi error'));
+      .catch(err => alert('Error: ' + err));
   });
 
-  // filter by kategori on click
-  document.querySelectorAll('.kategori-btn').forEach(b=>{
-    b.addEventListener('click', ()=>{
+  // === filter kategori ===
+  document.querySelectorAll('.kategori-btn').forEach(b => {
+    b.addEventListener('click', () => {
       const k = b.dataset.kategori;
-      document.querySelectorAll('.card').forEach(card=>{
-        if(card.dataset.kategori === k) card.style.display = 'block'; else card.style.display = 'none';
+      document.querySelectorAll('.card').forEach(card => {
+        if (k === "all" || card.dataset.kategori === k) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
       });
     });
   });

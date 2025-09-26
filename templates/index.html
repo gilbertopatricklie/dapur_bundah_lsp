@@ -19,15 +19,15 @@
     </div>
   </header>
 
-  <main class="container">
-    <aside class="sidebar">
-      <h3>Kategori</h3>
-      <ul>
-        {% for k in kategori %}
-          <li><button class="kategori-btn" data-kategori="{{ k.kategori_id }}">{{ k.nama_kategori }}</button></li>
-        {% endfor %}
-      </ul>
-    </aside>
+  <aside class="sidebar">
+    <h3>Kategori</h3>
+    <ul>
+      <li><button class="kategori-btn" data-kategori="all">Semua</button></li>
+      {% for k in kategori %}
+        <li><button class="kategori-btn" data-kategori="{{ k.kategori_id }}">{{ k.nama_kategori }}</button></li>
+      {% endfor %}
+    </ul>
+  </aside>
 
     <section class="content">
       <h2>Menu</h2>
@@ -45,24 +45,23 @@
     </section>
   </main>
 
-  <!-- modal popup order -->
   <div id="modal" class="modal">
     <div class="modal-content">
-      <span id="close">&times;</span>
-      <h3 id="modal-nama"></h3>
-      <p>Harga: Rp <span id="modal-harga"></span></p>
-      <p>Stok: <span id="modal-stok"></span></p>
-      <form id="form-order">
-        <input type="hidden" name="produk_id" id="produk_id">
-        <input type="hidden" name="nama" id="produk_nama">
-        <input type="hidden" name="harga" id="produk_harga">
-        <label>Jumlah:</label>
-        <input type="number" name="qty" id="qty" min="1" value="1" />
-        <button type="submit">Masukkan ke Keranjang</button>
+        <span id="close">&times;</span>
+        <h3 id="modal-nama"></h3>
+        <p>Harga: Rp <span id="modal-harga"></span></p>
+        <p>Stok: <span id="modal-stok"></span></p>
+        <form id="form-order">
+          <input type="hidden" name="produk_id" id="produk_id">
+          <input type="hidden" name="nama" id="produk_nama">
+          <input type="hidden" name="harga" id="produk_harga">
+          <label>Jumlah:</label>
+          <input type="number" name="qty" id="qty" min="1" value="1" />
+          <button type="submit">Masukkan ke Keranjang</button>
       </form>
-    </div>
   </div>
+</div>
 
-  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

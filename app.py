@@ -104,7 +104,7 @@ def checkout():
 
     # kosongin cart
     session['cart'] = {}
-    flash("Pembayaran berhasil. Terima kasih!", "success")
+    # flash("Pembayaran berhasil. Terima kasih!", "success")
     return redirect(url_for('index'))
 
 # route login
